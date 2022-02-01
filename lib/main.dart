@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import './models/transaction.dart';
 import './Widgets/new_transaction.dart';
 import './Widgets/transaction_list.dart';
+import './Widgets/chart.dart';
 
 void main() => runApp(MyApp());
 
@@ -46,7 +47,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 // We are using stateful widget because we are managing the state of the app inside main.dart file
 class MyHomePage extends StatefulWidget {
   @override
@@ -69,6 +69,18 @@ class _MyHomePageState extends State<MyHomePage> {
     //   date: DateTime.now(),
     // )
   ];
+
+  // Getters are dynamically generated values
+  // This function only passes the trsactions which are in 7 days
+  List<Transaction> get _recentTransactions {
+    return _userTransactions.where((tx) {
+      return tx.date.isAfter(
+        DateTime.now().subtract(
+          Duration(days: 7),
+        ),
+      );
+    }).toList();
+  }
 
   // Function which is triggered when a new transaction is added into the app
   void _addNewTransaction(String txTitle, double txAmount) {
@@ -115,20 +127,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // SingleChildScroolView is used to prevent oveflow from screen when keyboard comes up during adding new transaction
       body: SingleChildScrollView(
-
         // this contains the chart and the entire transaction list
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: double.infinity,
-              child: Card(
-                color: Colors.blue,
-                child: Text("CHART"),
-                elevation: 5,
-                // Size of the card is defined by the size of child so if we want to change the size of card we must change the size of chlid, or the size is defined by the parent
-              ),
-            ),
+            Chart(_recentTransactions),
 
             // Outputting the entire TransactionList
             TransactionList(_userTransactions),
