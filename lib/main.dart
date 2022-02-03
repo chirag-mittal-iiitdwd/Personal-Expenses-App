@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         // Primary swatch gives us a bunch of shades of a color
         primarySwatch: Colors.purple,
+        errorColor: Colors.red,
 
         // This behaves like a secondary color. This is foreground color for widgets like knobs, text, overscroll edge effect, etc
         accentColor: Colors.amber,
@@ -31,6 +32,9 @@ class MyApp extends StatelessWidget {
                 fontFamily: 'OpenSans',
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
+              ),
+              button: TextStyle(
+                color: Colors.white,
               ),
             ),
 
@@ -56,18 +60,18 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // The Transactions list which stores all the transactions
   final List<Transaction> _userTransactions = [
-    // Transaction(
-    //   id: 't1',
-    //   title: "Shoes",
-    //   amount: 999,
-    //   date: DateTime.now(),
-    // ),
-    // Transaction(
-    //   id: 't2',
-    //   title: 'Weekly Groceries',
-    //   amount: 500,
-    //   date: DateTime.now(),
-    // )
+    Transaction(
+      id: 't1',
+      title: "Shoes",
+      amount: 999,
+      date: DateTime.now(),
+    ),
+    Transaction(
+      id: 't2',
+      title: 'Weekly Groceries',
+      amount: 500,
+      date: DateTime.now(),
+    )
   ];
 
   // Getters are dynamically generated values
@@ -83,17 +87,25 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // Function which is triggered when a new transaction is added into the app
-  void _addNewTransaction(String txTitle, double txAmount) {
+  void _addNewTransaction(String txTitle, double txAmount, DateTime date) {
     final newTx = Transaction(
       id: DateTime.now().toString(),
       title: txTitle,
       amount: txAmount,
-      date: DateTime.now(),
+      date: date,
     );
 
     // setState rebuilds the app with the changes which are enclosed in it
     setState(() {
       _userTransactions.add(newTx);
+    });
+  }
+
+  void _deleteTransaction(String id) {
+    setState(() {
+      _userTransactions.removeWhere((tx) {
+        return tx.id == id;
+      });
     });
   }
 
@@ -134,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Chart(_recentTransactions),
 
             // Outputting the entire TransactionList
-            TransactionList(_userTransactions),
+            TransactionList(_userTransactions,_deleteTransaction),
           ],
         ),
       ),

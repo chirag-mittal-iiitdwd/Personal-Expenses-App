@@ -28,7 +28,8 @@ class Chart extends StatelessWidget {
         'day': DateFormat.E().format(weekDay).substring(0, 1),
         'amount': totalSum,
       };
-    });
+    }).reversed.toList();
+    // Previously the current day was coming at last so we reversed it so that it comes on first
   }
 
   double get totalSpending {
@@ -39,7 +40,7 @@ class Chart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(groupedTransactionValues);
+    // print(groupedTransactionValues);
     return Card(
       elevation: 6,
       margin: EdgeInsets.all(20),
@@ -48,13 +49,19 @@ class Chart extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: groupedTransactionValues.map((data) {
+            // A replacement for Flexfir tight is Expanded
+            // Flex property can decide how much big we want our current element to be as compared to first element
+            // If there are two Flexible widgets with tight fit than they both share their space equally
             return Flexible(
-              // fit property dosn't allow the bar to grow
+              // if we set fit property as loose than we are telling flutter that the elements can be as big as their children
+              // The child is forced to fill the available space, in tight
               fit: FlexFit.tight,
               child: ChartBar(
                 data['day'],
                 data['amount'],
-                totalSpending == 0.0 ? 0.0 : (data['amount'] as double) / totalSpending,
+                totalSpending == 0.0
+                    ? 0.0
+                    : (data['amount'] as double) / totalSpending,
               ),
             );
           }).toList(),

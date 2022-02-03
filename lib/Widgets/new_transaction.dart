@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 // We are using stateful widget because the input fields were dissappearing as soon as we go onto next thing to enter, because sateless widget reloads as soon as it detects a change
 class NewTransaction extends StatefulWidget {
@@ -13,18 +14,23 @@ class NewTransaction extends StatefulWidget {
 }
 
 class _NewTransactionState extends State<NewTransaction> {
-
   // These take care of the input flelds
   final titleController = TextEditingController();
   final amountController = TextEditingController();
 
+  // Not a finall property because initially this value will not have anything but as soon as user picks date this will contain a value
+  DateTime _selectedDate;
+
   void submitData() {
+    if (amountController.text.isEmpty) {
+      return;
+    }
     // Ckecks some basic things before submitting
     // This is for submitting before completing the form
     final enteredTitle = titleController.text;
     final enteredAmount = double.parse(amountController.text);
 
-    if (enteredTitle.isEmpty || enteredAmount <= 0) {
+    if (enteredTitle.isEmpty || enteredAmount <= 0 || _selectedDate == null) {
       return;
     }
 
@@ -32,15 +38,32 @@ class _NewTransactionState extends State<NewTransaction> {
     widget.addNewTranaction(
       enteredTitle,
       enteredAmount,
+      _selectedDate,
     );
 
     // This takes out the modal bottom sheet as soon as we click submit on soft keyboard or press button
     Navigator.of(context).pop();
   }
 
+  void _presentDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2019),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) {
+        return;
+      } else {
+        setState(() {
+          _selectedDate = pickedDate;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-
     // The input card in the modal bottom sheet
     return Card(
       elevation: 5,
@@ -67,10 +90,37 @@ class _NewTransactionState extends State<NewTransaction> {
               // if the input is complete and the user uses submit button on keyboard then the function gets triggeterd and checks come background checks and thereby rejects or accepts the values
               onSubmitted: (_) => submitData(),
             ),
-            FlatButton(
-
+            Container(
+              height: 70,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _selectedDate == null
+                          ? "No Date Choosen!"
+                          : "Picked Date : ${DateFormat.yMd().format(_selectedDate)}",
+                    ),
+                  ),
+                  FlatButton(
+                    textColor: Theme.of(context).primaryColor,
+                    onPressed: _presentDatePicker,
+                    child: Text(
+                      "Choose Date",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ElevatedButton(
               // The buttons just in case the user wants to tap on some button and not keypad button
-              textColor: Colors.purple,
+              style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all(Theme.of(context).primaryColor),
+                textStyle: MaterialStateProperty.all(
+                  TextStyle(color: Theme.of(context).textTheme.button.color),
+                ),
+              ),
               onPressed: submitData,
               child: Text("Add Transaction"),
             )

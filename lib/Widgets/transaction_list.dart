@@ -6,13 +6,13 @@ import '../models/transaction.dart';
 // Stateless widget because the data it is recieveing is from outside and stateless widgets can handle that
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
+  final Function deleteTnx;
 
   // Here we take the transactions list from main.dart
-  TransactionList(this.transactions);
+  TransactionList(this.transactions,this.deleteTnx);
 
   @override
   Widget build(BuildContext context) {
-
     // Container sets some spacing rules for the widgets or else they go outside the phone
     return Container(
       height: 300,
@@ -38,56 +38,39 @@ class TransactionList extends StatelessWidget {
               ],
             )
 
-            // Displying the entire list of trnsactions
-            // using ListView because it is scrollable and only loads that part of the list which is being watched currently, does not unnecessarily clusters the widgets like in column
+          // Displying the entire list of trnsactions
+          // using ListView because it is scrollable and only loads that part of the list which is being watched currently, does not unnecessarily clusters the widgets like in column
           : ListView.builder(
-
               // ctx is the context taken care by flutter and index is the index of our list which we want to traverse
               itemBuilder: (ctx, index) {
                 return Card(
-                  // Creating individual List element to display
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 15,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context).primaryColor,
-                            width: 2,
-                          ),
-                        ),
-                        padding: EdgeInsets.all(10),
-                        child: Text(
-                          // truncating the value to 2 decimal places
-                          '\$${transactions[index].amount.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            // Default custom theme mentioned in main.dart
-                            color: Theme.of(context).primaryColor,
-                          ),
+                  margin: EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 5,
+                  ),
+                  elevation: 5,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      radius: 30,
+                      child: Padding(
+                        padding: EdgeInsets.all(6),
+                        child: FittedBox(
+                          child: Text('\$${transactions[index].amount}'),
                         ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            transactions[index].title,
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
-                          Text(
-                            // Date formats provided by intl library used externally mentioned in pubspec.yaml
-                            DateFormat.yMMMd().format(transactions[index].date),
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
+                    title: Text(
+                      transactions[index].title,
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                    subtitle: Text(
+                      DateFormat.yMMMd().format(transactions[index].date),
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      color: Theme.of(context).errorColor,
+                      onPressed: ()=>deleteTnx(transactions[index].id),
+                    ),
                   ),
                 );
               },

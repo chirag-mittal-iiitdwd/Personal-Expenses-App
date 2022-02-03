@@ -15,7 +15,12 @@ class ChartBar extends StatelessWidget {
     return Column(
       children: [
         // Creates a widget that scales and positions its child within itself according to [fit]
-        FittedBox(child: Text('\$${spendingAmt.toStringAsFixed(0)}')),
+        Container(
+          height: 20,
+          child: FittedBox(
+            child: Text('\$${spendingAmt.toStringAsFixed(0)}'),
+          ),
+        ),
         SizedBox(
           height: 4,
         ),
