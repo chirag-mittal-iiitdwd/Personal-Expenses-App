@@ -120,22 +120,35 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  bool _showChart = false;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Personal Expenses',
-        ),
+    final isLandscape = MediaQuery.of(context).orientation==Orientation.landscape;
 
-        // For adding a add button in the appbar right corner
-        actions: [
-          IconButton(
-            onPressed: () => _startAddNewTransaction(context),
-            icon: Icon(Icons.add),
-          ),
-        ],
+    final appBar = AppBar(
+      title: Text(
+        'Personal Expenses',
       ),
+
+      // For adding a add button in the appbar right corner
+      actions: [
+        IconButton(
+          onPressed: () => _startAddNewTransaction(context),
+          icon: Icon(Icons.add),
+        ),
+      ],
+    );
+
+    final txList=Container(
+                    height: (MediaQuery.of(context).size.height * 0.7) -
+                        appBar.preferredSize.height -
+                        MediaQuery.of(context).padding.top,
+                    child:
+                        TransactionList(_userTransactions, _deleteTransaction),
+                  );
+
+    return Scaffold(
+      appBar: appBar,
 
       // SingleChildScroolView is used to prevent oveflow from screen when keyboard comes up during adding new transaction
       body: SingleChildScrollView(
@@ -143,10 +156,39 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Chart(_recentTransactions),
+            if(isLandscape)Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Show Chart'),
+                Switch(
+                  value: _showChart,
+                  onChanged: (val) {
+                    setState(() {
+                      _showChart = val;
+                    });
+                  },
+                )
+              ],
+            ),
 
-            // Outputting the entire TransactionList
-            TransactionList(_userTransactions,_deleteTransaction),
+            if(!isLandscape)Container(
+                    height: ((MediaQuery.of(context).size.height) -
+                            appBar.preferredSize.height -
+                            MediaQuery.of(context).padding.top) *
+                        0.3,
+                    child: Chart(_recentTransactions),
+                  ),
+            if(!isLandscape)txList,
+            if(isLandscape)_showChart
+                ? Container(
+                    height: ((MediaQuery.of(context).size.height) -
+                            appBar.preferredSize.height -
+                            MediaQuery.of(context).padding.top) *
+                        0.7,
+                    child: Chart(_recentTransactions),
+                  )
+                :txList
+                // Outputting the entire TransactionList
           ],
         ),
       ),
