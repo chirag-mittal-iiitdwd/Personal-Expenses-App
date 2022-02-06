@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import './models/transaction.dart';
@@ -60,18 +63,18 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // The Transactions list which stores all the transactions
   final List<Transaction> _userTransactions = [
-    Transaction(
-      id: 't1',
-      title: "Shoes",
-      amount: 999,
-      date: DateTime.now(),
-    ),
-    Transaction(
-      id: 't2',
-      title: 'Weekly Groceries',
-      amount: 500,
-      date: DateTime.now(),
-    )
+    // Transaction(
+    //   id: 't1',
+    //   title: "Shoes",
+    //   amount: 999,
+    //   date: DateTime.now(),
+    // ),
+    // Transaction(
+    //   id: 't2',
+    //   title: 'Weekly Groceries',
+    //   amount: 500,
+    //   date: DateTime.now(),
+    // )
   ];
 
   // Getters are dynamically generated values
@@ -123,83 +126,115 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _showChart = false;
   @override
   Widget build(BuildContext context) {
-    final isLandscape = MediaQuery.of(context).orientation==Orientation.landscape;
+    final mediaQuery = MediaQuery.of(context);
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
 
-    final appBar = AppBar(
-      title: Text(
-        'Personal Expenses',
-      ),
+    final PreferredSizeWidget appBar = Platform.isIOS
+        ? CupertinoNavigationBar(
+            middle: Text(
+              'Personal Expenses',
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  child: Icon(CupertinoIcons.add),
+                  onTap: () => _startAddNewTransaction(context),
+                ),
+              ],
+            ),
+          )
+        : AppBar(
+            title: Text(
+              'Personal Expenses',
+            ),
 
-      // For adding a add button in the appbar right corner
-      actions: [
-        IconButton(
-          onPressed: () => _startAddNewTransaction(context),
-          icon: Icon(Icons.add),
-        ),
-      ],
+            // For adding a add button in the appbar right corner
+            actions: [
+              IconButton(
+                onPressed: () => _startAddNewTransaction(context),
+                icon: Icon(Icons.add),
+              ),
+            ],
+          );
+
+    final txList = Container(
+      height: (mediaQuery.size.height * 0.7) -
+          appBar.preferredSize.height -
+          mediaQuery.padding.top,
+      child: TransactionList(_userTransactions, _deleteTransaction),
     );
 
-    final txList=Container(
-                    height: (MediaQuery.of(context).size.height * 0.7) -
-                        appBar.preferredSize.height -
-                        MediaQuery.of(context).padding.top,
-                    child:
-                        TransactionList(_userTransactions, _deleteTransaction),
-                  );
-
-    return Scaffold(
-      appBar: appBar,
-
-      // SingleChildScroolView is used to prevent oveflow from screen when keyboard comes up during adding new transaction
-      body: SingleChildScrollView(
+    final pageBody = SafeArea(
+      child: SingleChildScrollView(
         // this contains the chart and the entire transaction list
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if(isLandscape)Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Show Chart'),
-                Switch(
-                  value: _showChart,
-                  onChanged: (val) {
-                    setState(() {
-                      _showChart = val;
-                    });
-                  },
-                )
-              ],
-            ),
-
-            if(!isLandscape)Container(
-                    height: ((MediaQuery.of(context).size.height) -
-                            appBar.preferredSize.height -
-                            MediaQuery.of(context).padding.top) *
-                        0.3,
-                    child: Chart(_recentTransactions),
+            if (isLandscape)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Show Chart',
+                    style: Theme.of(context).textTheme.headline6,
                   ),
-            if(!isLandscape)txList,
-            if(isLandscape)_showChart
-                ? Container(
-                    height: ((MediaQuery.of(context).size.height) -
-                            appBar.preferredSize.height -
-                            MediaQuery.of(context).padding.top) *
-                        0.7,
-                    child: Chart(_recentTransactions),
+                  Switch.adaptive(
+                    activeColor: Theme.of(context).accentColor,
+                    value: _showChart,
+                    onChanged: (val) {
+                      setState(() {
+                        _showChart = val;
+                      });
+                    },
                   )
-                :txList
-                // Outputting the entire TransactionList
+                ],
+              ),
+
+            if (!isLandscape)
+              Container(
+                height: ((mediaQuery.size.height) -
+                        appBar.preferredSize.height -
+                        mediaQuery.padding.top) *
+                    0.3,
+                child: Chart(_recentTransactions),
+              ),
+            if (!isLandscape) txList,
+            if (isLandscape)
+              _showChart
+                  ? Container(
+                      height: ((mediaQuery.size.height) -
+                              appBar.preferredSize.height -
+                              mediaQuery.padding.top) *
+                          0.7,
+                      child: Chart(_recentTransactions),
+                    )
+                  : txList
+            // Outputting the entire TransactionList
           ],
         ),
       ),
-
-      // Defining floating action button and it's functions
-      // Defing its position
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _startAddNewTransaction(context),
-        child: Icon(Icons.add),
-      ),
     );
+
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            child: pageBody,
+            navigationBar: appBar,
+          )
+        : Scaffold(
+            appBar: appBar,
+            body: pageBody,
+            // SingleChildScroolView is used to prevent oveflow from screen when keyboard comes up during adding new transaction
+            // Defining floating action button and it's functions
+            // Defing its position
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: Platform.isIOS
+                ? Container()
+                : FloatingActionButton(
+                    onPressed: () => _startAddNewTransaction(context),
+                    child: Icon(Icons.add),
+                  ),
+          );
   }
 }

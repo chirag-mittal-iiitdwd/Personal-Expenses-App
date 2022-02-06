@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -65,66 +66,75 @@ class _NewTransactionState extends State<NewTransaction> {
   @override
   Widget build(BuildContext context) {
     // The input card in the modal bottom sheet
-    return Card(
-      elevation: 5,
-      child: Container(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            TextField(
-              decoration: InputDecoration(labelText: 'Title'),
-              // controller ensures that the inputed data goes to titleController
-              controller: titleController,
+    return SingleChildScrollView(
+      child: Card(
+        elevation: 5,
+        child: Container(
+          padding: EdgeInsets.only(
+            top: 10,
+            left: 10,
+            right: 10,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            // MediaQuery.of(context).viewInsets this gives us the information about anything that is lapping in the view
+            // bottom property will tell us how much space is occupied by our soft keyboard
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: 'Title'),
+                // controller ensures that the inputed data goes to titleController
+                controller: titleController,
 
-              // if the input is complete and the user uses submit button on keyboard then the function gets triggeterd and checks come background checks and thereby rejects or accepts the values
-              onSubmitted: (_) => submitData(),
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: 'Amount'),
-              // Ensures the input data goes to right field
-              controller: amountController,
-              // Gives the number keypad so that only double values can be typed
-              keyboardType: TextInputType.number,
-
-              // if the input is complete and the user uses submit button on keyboard then the function gets triggeterd and checks come background checks and thereby rejects or accepts the values
-              onSubmitted: (_) => submitData(),
-            ),
-            Container(
-              height: 70,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _selectedDate == null
-                          ? "No Date Choosen!"
-                          : "Picked Date : ${DateFormat.yMd().format(_selectedDate)}",
-                    ),
-                  ),
-                  FlatButton(
-                    textColor: Theme.of(context).primaryColor,
-                    onPressed: _presentDatePicker,
-                    child: Text(
-                      "Choose Date",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
+                // if the input is complete and the user uses submit button on keyboard then the function gets triggeterd and checks come background checks and thereby rejects or accepts the values
+                onSubmitted: (_) => submitData(),
               ),
-            ),
-            ElevatedButton(
-              // The buttons just in case the user wants to tap on some button and not keypad button
-              style: ButtonStyle(
-                backgroundColor:
-                    MaterialStateProperty.all(Theme.of(context).primaryColor),
-                textStyle: MaterialStateProperty.all(
-                  TextStyle(color: Theme.of(context).textTheme.button.color),
+              TextField(
+                decoration: InputDecoration(labelText: 'Amount'),
+                // Ensures the input data goes to right field
+                controller: amountController,
+                // Gives the number keypad so that only double values can be typed
+                keyboardType: TextInputType.number,
+
+                // if the input is complete and the user uses submit button on keyboard then the function gets triggeterd and checks come background checks and thereby rejects or accepts the values
+                onSubmitted: (_) => submitData(),
+              ),
+              Container(
+                height: 70,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _selectedDate == null
+                            ? "No Date Choosen!"
+                            : "Picked Date : ${DateFormat.yMd().format(_selectedDate)}",
+                      ),
+                    ),
+                    FlatButton(
+                      textColor: Theme.of(context).primaryColor,
+                      onPressed: _presentDatePicker,
+                      child: Text(
+                        "Choose Date",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              onPressed: submitData,
-              child: Text("Add Transaction"),
-            )
-          ],
+              ElevatedButton(
+                // The buttons just in case the user wants to tap on some button and not keypad button
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all(Theme.of(context).primaryColor),
+                  textStyle: MaterialStateProperty.all(
+                    TextStyle(color: Theme.of(context).textTheme.button.color),
+                  ),
+                ),
+                onPressed: submitData,
+                child: Text("Add Transaction"),
+              )
+            ],
+          ),
         ),
       ),
     );
